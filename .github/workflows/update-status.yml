@@ -55,7 +55,6 @@ jobs:
         CUSTOM_ACTOR: ${{ secrets.CUSTOM_ACTOR }}
         EXCLUDED: ${{ secrets.EXCLUDED }}
         EXCLUDED_LANGS: ${{ secrets.EXCLUDED_LANGS }}
-        EXCLUDED_REPOS: ${{ secrets.EXCLUDED_REPOS }}
         EXCLUDE_FORKED_REPOS: true
 
     # Commits all changed files to the repository
