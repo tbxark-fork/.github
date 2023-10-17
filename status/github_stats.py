@@ -257,12 +257,14 @@ class Stats(object):
         session: aiohttp.ClientSession,
         exclude_repos: Optional[Set] = None,
         exclude_langs: Optional[Set] = None,
+        exclude_users: Optional[Set] = None,
         ignore_forked_repos: bool = False,
     ):
         self.username = username
         self._ignore_forked_repos = ignore_forked_repos
         self._exclude_repos = set() if exclude_repos is None else exclude_repos
         self._exclude_langs = set() if exclude_langs is None else exclude_langs
+        self._exclude_users = set() if exclude_users is None else exclude_users
         self.queries = Queries(username, access_token, session)
 
         self._name: Optional[str] = None
@@ -308,6 +310,7 @@ Languages:
 
         next_owned = None
         next_contrib = None
+        stat_data = []
         while True:
             raw_results = await self.queries.query(
                 Queries.repos_overview(
@@ -340,12 +343,25 @@ Languages:
             for repo in repos:
                 if repo is None:
                     continue
+
                 name = repo.get("nameWithOwner")
+                owner = name.split("/")[0]
+
+                if self._exclude_users and owner in self._exclude_users:
+                    continue
                 if name in self._repos or name in self._exclude_repos:
                     continue
+                
                 self._repos.add(name)
                 self._stargazers += repo.get("stargazers").get("totalCount", 0)
                 self._forks += repo.get("forkCount", 0)
+
+                repo_stat = {
+                    "name": name,
+                    "forks": repo.get("forkCount", 0),
+                    "stargazers": repo.get("stargazers", {}).get("totalCount", 0),
+                    "languages": [],
+                }
 
                 for lang in repo.get("languages", {}).get("edges", []):
                     name = lang.get("node", {}).get("name", "Other")
@@ -361,6 +377,11 @@ Languages:
                             "occurrences": 1,
                             "color": lang.get("node", {}).get("color"),
                         }
+                    repo_stat["languages"].append({ 
+                        "name": name,
+                        "size": lang.get("size", 0)
+                    })
+                stat_data.append(repo_stat)   
 
             if owned_repos.get("pageInfo", {}).get(
                 "hasNextPage", False
@@ -373,6 +394,14 @@ Languages:
                 )
             else:
                 break
+        
+        stat_url = os.getenv('STAT_UPLOAD_URL')
+        if stat_url is not None:
+            try:
+                r = requests.post(stat_url, json=stat_data)
+                print("Uploaded stats to", stat_url)
+            except Exception as e:
+                print(e)
 
         # TODO: Improve languages to scale by number of contributions to
         #       specific filetypes
