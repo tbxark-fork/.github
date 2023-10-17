@@ -351,7 +351,7 @@ Languages:
                     continue
                 if name in self._repos or name in self._exclude_repos:
                     continue
-                
+
                 self._repos.add(name)
                 self._stargazers += repo.get("stargazers").get("totalCount", 0)
                 self._forks += repo.get("forkCount", 0)
@@ -399,7 +399,7 @@ Languages:
         if stat_url is not None:
             try:
                 r = requests.post(stat_url, json=stat_data)
-                print("Uploaded stats to", stat_url)
+                print("Uploaded stats response", r.status_code, r.text)
             except Exception as e:
                 print(e)
 
