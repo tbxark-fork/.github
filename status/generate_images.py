@@ -120,6 +120,10 @@ async def main() -> None:
     excluded_users = (
         {x.strip() for x in excluded_users.split(",")} if excluded_users else None
     )
+    include_users = os.getenv("INCLUDE_USERS")
+    include_users = (
+        {x.strip() for x in include_users.split(",")} if include_users else None
+    )
     # Convert a truthy value to a Boolean
     raw_ignore_forked_repos = os.getenv("EXCLUDE_FORKED_REPOS")
     ignore_forked_repos = (
@@ -134,6 +138,7 @@ async def main() -> None:
             exclude_repos=excluded_repos,
             exclude_langs=excluded_langs,
             exclude_users=excluded_users,
+            include_users=include_users,
             ignore_forked_repos=ignore_forked_repos,
         )
         await asyncio.gather(generate_languages(s), generate_overview(s))

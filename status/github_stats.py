@@ -258,6 +258,7 @@ class Stats(object):
         exclude_repos: Optional[Set] = None,
         exclude_langs: Optional[Set] = None,
         exclude_users: Optional[Set] = None,
+        include_users: Optional[Set] = None,
         ignore_forked_repos: bool = False,
     ):
         self.username = username
@@ -265,6 +266,7 @@ class Stats(object):
         self._exclude_repos = set() if exclude_repos is None else exclude_repos
         self._exclude_langs = set() if exclude_langs is None else exclude_langs
         self._exclude_users = set() if exclude_users is None else exclude_users
+        self._include_users = set() if include_users is None else include_users
         self.queries = Queries(username, access_token, session)
 
         self._name: Optional[str] = None
@@ -347,6 +349,8 @@ Languages:
                 name = repo.get("nameWithOwner")
                 owner = name.split("/")[0]
 
+                if self._include_users and owner not in self._include_users:
+                    continue
                 if self._exclude_users and owner in self._exclude_users:
                     continue
                 if name in self._repos or name in self._exclude_repos:
@@ -395,6 +399,7 @@ Languages:
             else:
                 break
         
+        print("stat_data", stat_data)
         stat_url = os.getenv('STAT_UPLOAD_URL')
         if stat_url is not None:
             try:
@@ -570,7 +575,7 @@ async def main() -> None:
         )
     async with aiohttp.ClientSession() as session:
         s = Stats(user, access_token, session)
-        print(await s.to_str())
+        print(await s.get_stats())
 
 
 if __name__ == "__main__":
