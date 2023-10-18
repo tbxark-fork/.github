@@ -6,6 +6,7 @@ from typing import Dict, List, Optional, Set, Tuple, Any, cast
 
 import aiohttp
 import requests
+import json
 
 
 ###############################################################################
@@ -399,11 +400,11 @@ Languages:
             else:
                 break
         
-        # print("stat_data", stat_data)
         stat_url = os.getenv('STAT_UPLOAD_URL')
-        if stat_url is not None:
+        if stat_url is not None and len(stat_data) > 0:
             try:
-                r = requests.post(stat_url, json=stat_data)
+                json_text = json.dumps(stat_data, indent=4)
+                r = requests.post(stat_url, data=json_text)
                 print("Uploaded stats response", r.status_code, r.text)
             except Exception as e:
                 print(e)
