@@ -57,7 +57,7 @@ jobs:
         EXCLUDE_FORKED_REPOS: true
         EXCLUDED_LANGS: ${{ secrets.EXCLUDED_LANGS }}
         EXCLUDED_USERS: ${{ secrets.EXCLUDED_USERS }}
-        INCLUDED_USERS: ${{ secretes.INCLUDED_USERS }}
+        INCLUDED_USERS: ${{ secrets.INCLUDED_USERS }}
         STAT_UPLOAD_URL: ${{  secrets.STAT_UPLOAD_URL }}
 
     # Commits all changed files to the repository
