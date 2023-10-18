@@ -399,7 +399,7 @@ Languages:
             else:
                 break
         
-        print("stat_data", stat_data)
+        # print("stat_data", stat_data)
         stat_url = os.getenv('STAT_UPLOAD_URL')
         if stat_url is not None:
             try:
